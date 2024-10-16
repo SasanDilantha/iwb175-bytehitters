@@ -10,9 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@nasaworldwind/worldwind": "^0.11.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "webworldwind-esa": "^1.0.3"
+    "react-router-dom": "^6.27.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.11.1",
