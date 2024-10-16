@@ -1,21 +1,11 @@
 import React, { useEffect, useRef } from "react";
-import WorldWind from "webworldwind-esa";
+import WorldWind from "@nasaworldwind/worldwind";
 
 const WorldWindGlobe = () => {
 	const canvasRef = useRef(null);
 
-	useEffect(() => {
-		// Create a WorldWindow for the canvas after component mounts
-		const wwd = new WorldWind.WorldWindow(canvasRef.current);
-
-		// Add layers for the base imagery and other functionality
-		wwd.addLayer(new WorldWind.BMNGOneImageLayer());
-		wwd.addLayer(new WorldWind.BMNGLandsatLayer());
-		wwd.addLayer(new WorldWind.CompassLayer());
-		wwd.addLayer(new WorldWind.CoordinatesDisplayLayer(wwd));
-		wwd.addLayer(new WorldWind.ViewControlsLayer(wwd));
-
-		// Add a placemark
+    // Function to add a placemark
+	function addPlaceMark(wwd, lat, lon, text) {
 		const placemarkLayer = new WorldWind.RenderableLayer();
 		wwd.addLayer(placemarkLayer);
 
@@ -42,16 +32,46 @@ const WorldWindGlobe = () => {
 			placemarkAttributes
 		);
 
-		placemark.label =
-			"Placemark\n" +
-			"Lat " +
-			placemark.position.latitude.toPrecision(4).toString() +
-			"\n" +
-			"Lon " +
-			placemark.position.longitude.toPrecision(5).toString();
+		placemark.label = `Placemark\nLat ${placemark.position.latitude.toPrecision(
+			4
+		)}\nLon ${placemark.position.longitude.toPrecision(5)}`;
 		placemark.alwaysOnTop = true;
 
 		placemarkLayer.addRenderable(placemark);
+
+		// Force a redraw of the WorldWindow to ensure everything renders correctly
+		wwd.redraw();
+	}
+
+	useEffect(() => {
+		try {
+			// Create a WorldWindow for the canvas after component mounts
+			const wwd = new WorldWind.WorldWindow(canvasRef.current);
+
+			// Add base layers and controls
+			const baseLayers = [
+				new WorldWind.BMNGOneImageLayer(),
+				new WorldWind.BMNGLandsatLayer(),
+				new WorldWind.CoordinatesDisplayLayer(wwd),
+				new WorldWind.ViewControlsLayer(wwd),
+				new WorldWind.CompassLayer(),
+			];
+
+			baseLayers.forEach((layer) => {
+				wwd.addLayer(layer);
+			});
+
+			// Set lookout angle to Sri Lanka
+			wwd.navigator.lookAtLocation.latitude = 7.8731;
+			wwd.navigator.lookAtLocation.longitude = 80.7718;
+			wwd.navigator.range = 0.65e6;
+			wwd.redraw();
+
+			// Log layer info for debugging
+			console.log("Layers added: ", wwd.layers);
+		} catch (error) {
+			console.error("Error initializing WorldWind:", error);
+		}
 	}, []);
 
 	return (
@@ -59,9 +79,9 @@ const WorldWindGlobe = () => {
 			<canvas
 				ref={canvasRef}
 				id="canvasOne"
-				width="1024"
-				height="768"
-				style={{ display: "block", margin: "0 auto" }}
+				width="1500"
+				height="1024"
+				style={{ display: "block", margin: "0 auto", backgroundColor: "black" }}
 			>
 				Your browser does not support HTML5 Canvas.
 			</canvas>
