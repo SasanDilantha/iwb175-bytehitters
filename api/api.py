@@ -11,7 +11,7 @@ def daily_power_allocation():
     allocations = init_daily_power.get_daily_power_prediction(total_power_available)
     return jsonify({'allocations': allocations})
 
-@app.route('shortage_date', methods=['POST'])
+@app.route('/shortage_date', methods=['POST'])
 def shortage_date():
     next_date_of_shortage = init_shortage_prediction.get_next_date_of_shortage()
     return jsonify({'shortage_date': next_date_of_shortage})
