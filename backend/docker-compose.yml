@@ -1,0 +1,26 @@
+services:
+  mysql:
+    container_name: bal_mysql
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: testUser
+      MYSQL_USER: testUser
+      MYSQL_PASSWORD: testUser
+    volumes:
+      - mysql:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    restart: unless-stopped
+
+  phpmyadmin:
+    container_name: bal_phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: bal_mysql
+      MYSQL_ROOT_PASSWORD: testUser
+    ports:
+      - "8081:80"
+    restart: unless-stopped
+
+volumes:
+  mysql:
