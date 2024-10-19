@@ -4,10 +4,8 @@ import pandas as pd
 import datetime
 from classes.DailyPower import DailyPower
 
-DATASET = pd.read_csv('../ml/datasets/final_daily_dataset.csv')
+DATASET = pd.read_csv('../ml/datasets/median_districts_data.csv')
 MODEL = joblib.load('../ml/models/daily_power_distribution_model.pkl')
-
-TOTAL_POWER_AVAILABLE = 16000 ## UPDATE FROM THE DATABASE
 
 YEAR = datetime.datetime.now().year 
 MONTH = datetime.datetime.now().month
@@ -25,25 +23,20 @@ DISTRICTS = ["Colombo", "Gampaha", "Kalutara", "Kandy", "Matale", "Nuwara Eliya"
 PROVINCES_ENCODED = [8, 8, 8, 7, 7, 7, 6, 6, 5, 5, 5, 5, 5, 4, 4, 3, 3, 3, 2, 2, 2, 0, 0, 1, 1]
 DISTRICTS_ENCODED = [24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
 
-PRIMARY_ENERGY_PER_CAPITA_VALUES = []
-TOTAL_POWER_DEMAND_VALUES = []
-POPULATION_VALUES = []
-SHORTAGE_INDICATOR_VALUES = []
-RAINFALL_VALUES = []
-RURALITY_VALUES = []
+PRIMARY_ENERGY_PER_CAPITA_VALUES = DATASET['primary_energy_per_capita']
+TOTAL_POWER_DEMAND_VALUES = DATASET['total_power_demand']
+POPULATION_VALUES = DATASET['population']
+SHORTAGE_INDICATOR_VALUES = DATASET['shortage_indicator']
+RAINFALL_VALUES = DATASET['rainfall']
+RURALITY_VALUES = DATASET['rurality']
 
-for i in range(24):
-    PRIMARY_ENERGY_PER_CAPITA_VALUES.append(DATASET[DATASET['district'] == DISTRICTS[i]]['primary_energy_per_capita'].median())
-    TOTAL_POWER_DEMAND_VALUES.append(DATASET[DATASET['district'] == DISTRICTS[i]]['total_power_demand'].median())
-    POPULATION_VALUES.append(DATASET[DATASET['district'] == DISTRICTS[i]]['population'].median())
-    SHORTAGE_INDICATOR_VALUES.append(DATASET[DATASET['district'] == DISTRICTS[i]]['shortage_indicator'].median())
-    RAINFALL_VALUES.append(DATASET[DATASET['district'] == DISTRICTS[i]]['rainfall'].median())
-    RURALITY_VALUES.append(DATASET[DATASET['district'] == DISTRICTS[i]]['rurality'].median())
 
-daily_power = DailyPower(YEAR, MONTH, DAY, TOTAL_POWER_AVAILABLE, MONTH_SIN, MONTH_COS, DAY_SIN, DAY_COS, 
-                         PROVINCES_ENCODED, DISTRICTS_ENCODED, PRIMARY_ENERGY_PER_CAPITA_VALUES, TOTAL_POWER_DEMAND_VALUES,
-                         POPULATION_VALUES, SHORTAGE_INDICATOR_VALUES, RAINFALL_VALUES, RURALITY_VALUES)
+def get_daily_power_prediction(TOTAL_POWER_AVAILABLE):
+    daily_power = DailyPower(YEAR, MONTH, DAY, TOTAL_POWER_AVAILABLE, MONTH_SIN, MONTH_COS, DAY_SIN, DAY_COS, 
+                            PROVINCES_ENCODED, DISTRICTS_ENCODED, PRIMARY_ENERGY_PER_CAPITA_VALUES, TOTAL_POWER_DEMAND_VALUES,
+                            POPULATION_VALUES, SHORTAGE_INDICATOR_VALUES, RAINFALL_VALUES, RURALITY_VALUES)
 
-input_features_df = daily_power.prepare_input_features(np, pd)
-predicted_power_allocations = daily_power.get_predicted_power_allocations(np, MODEL, input_features_df, DISTRICTS)
-print(predicted_power_allocations)
+    input_features_df = daily_power.prepare_input_features(np, pd)
+    predicted_power_allocations = daily_power.get_predicted_power_allocations(np, MODEL, input_features_df, DISTRICTS)
+    
+    return predicted_power_allocations
