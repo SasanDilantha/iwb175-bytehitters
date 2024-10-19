@@ -2,6 +2,8 @@ class ShortagePrediction():
     LAST_DATE_IN_TEST = "2023-12-29"
     FUTURE_DAYS = 0
     TIME_STEPS = 30
+    MIN_SHORTAGE = 0.011416	* 365  # MIN (POWER DEMAND) * 365 GWh
+    MAX_SHORTAGE = 7.623288	* 365  # MAX (POWER DEMAND) * 365 GWh
 
     def __init__(self, future_days):
         self.FUTURE_DAYS = future_days
@@ -76,4 +78,15 @@ class ShortagePrediction():
             
         except:
             return "No shortage predicted"
+        
+
+    def estimate_shortage_amount(self, prob, min_shortage, max_shortage):
+        return min_shortage + prob * (max_shortage - min_shortage)
+
+
+    def get_shortage_amount(self, future_predictions_df):
+        future_predictions_df['estimated_shortage_amount'] = future_predictions_df['predicted_shortage'].apply(
+            lambda prob: self.estimate_shortage_amount(prob, self.MAX_SHORTAGE, self.MAX_SHORTAGE))
+        
+        return future_predictions_df[['estimated_shortage_amount']].iloc[1].values[0]
 
