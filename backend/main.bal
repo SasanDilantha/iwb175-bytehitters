@@ -1,10 +1,15 @@
 import ballerinax/mysql;
 import ballerina/sql;
+import ballerina/http;
+
 
 // Define the variables globally without initialization
 final mysql:Client dbClient = check new(
     host="localhost", user="root", password="testUser", port=3306, database="bal"
 );
+
+// Define the HTTP client for Flask ML model
+final http:Client flaskClient = check new("http://localhost:5000");
 
 // Function to initialize MySQL connection
 // function initMySQL() returns error? {
@@ -166,4 +171,20 @@ public function getAllPowerRequests() returns error | Request[] {
         };
     check resultStream.close();
     return requests;
+}
+
+// Function to send power plant data to the Flask ML model and receive prediction
+public function sendPowerPlantDataToML(PowerPlantStatus status) returns json|error {
+    // Prepare the JSON payload for Flask ML model
+    json requestPayload = {
+        "feature1": status.produceCapacity,  // Adjust based on your features
+        "feature2": status.status
+    };
+
+    // Send the POST request to Flask model
+    http:Response response = check flaskClient->post("/predict", requestPayload);
+    
+    // Get the prediction result
+    json responseData = check response.getJsonPayload();
+    return responseData;
 }
