@@ -97,7 +97,7 @@ const UpdateModal = ({ plant, onClose }) => {
                 Current_Capacity
               </label>
               <input
-                type="text"
+                type="number"
                 name="produce_capacity"
                 value={capacity}
                 onChange={(e) => setCapacity(e.target.value)}
