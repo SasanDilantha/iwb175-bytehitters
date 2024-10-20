@@ -28,23 +28,23 @@ listener http:Listener httpListener = new (9090);
 
 public type PowerPlant record {
     int id?;
-    string name;
+    string name?;
     string mail?;
     string mobile?;
-    string location;
+    string location?;
     string ownership;
     decimal daily_production_capacity;
 };
 
 public type PowerPlantStatus record {
-    int id;
+    int id?;
     string name;
     string status;
     decimal produceCapacity;
 };
 
 public type Request record {
-    int id;
+    int id?;
     int powerPlantId;
     decimal requestCapacity;
     string requestDate;
@@ -144,7 +144,7 @@ public isolated function deletePowerPlant(int plantId) returns error?|int? {
 }
 
 // Function to add a new power plant status to the MySQL database
-public function addPowerPlantStatus(PowerPlantStatus status) returns error?|int? {
+public isolated function addPowerPlantStatus(PowerPlantStatus status) returns error?|int? {
     //check initMySQL(); // Ensure MySQL is initialized
 
     sql:ParameterizedQuery query = `INSERT INTO PowerPlantStatus (name, status, produce_capacity) VALUES (${status.name}, ${status.status}, ${status.produceCapacity})`;
@@ -176,10 +176,10 @@ public function getAllPowerPlantStatuses() returns error|PowerPlantStatus[] {
 }
 
 // Function to update a power plant status in the MySQL database
-public function updatePowerPlantStatus(int plantId, PowerPlantStatus status) returns error?|int? {
+public isolated function updatePowerPlantStatus(PowerPlantStatus status) returns error?|int? {
     //check initMySQL(); // Ensure MySQL is initialized
 
-    sql:ParameterizedQuery query = `UPDATE PowerPlantStatus SET status = ${status.status}, produce_capacity = ${status.produceCapacity} WHERE id = ${plantId}`;
+    sql:ParameterizedQuery query = `UPDATE PowerPlantStatus SET status = ${status.status}, produce_capacity = ${status.produceCapacity} WHERE id = ${status.id}`;
     sql:ExecutionResult result = check dbClient->execute(query);
 
     int|string? lastInsertId = result.lastInsertId;
@@ -192,7 +192,7 @@ public function updatePowerPlantStatus(int plantId, PowerPlantStatus status) ret
 }
 
 // Function to add a power request to the MySQL database
-public function addPowerRequest(Request request) returns error?|int? {
+public isolated function addPowerRequest(Request request) returns error?|int? {
     //check initMySQL(); // Ensure MySQL is initialized
 
     sql:ParameterizedQuery query = `INSERT INTO Request (power_plant_id, request_capacity, request_date, status) VALUES (${request.powerPlantId}, ${request.requestCapacity}, ${request.requestDate}, ${request.status})`;
@@ -209,7 +209,7 @@ public function addPowerRequest(Request request) returns error?|int? {
 }
 
 // Function to retrieve all power requests from MySQL
-public function getAllPowerRequests() returns error|Request[] {
+public isolated function getAllPowerRequests() returns error|Request[] {
     //check initMySQL(); // Ensure MySQL is initialized
 
     sql:ParameterizedQuery query = `SELECT * FROM Request`;
@@ -339,6 +339,30 @@ service /powerplant on httpListener {
     isolated resource function delete remove(int id) returns json|error {
         int? affectedRows = check deletePowerPlant(id);
         return {"deletedCount": affectedRows};
+    }
+
+     // Add a new power plant status
+    isolated resource function post status(PowerPlantStatus status) returns json|error {
+        int? statusId = check addPowerPlantStatus(status);
+        return { "statusId": statusId };
+    }
+
+    // Update a power plant status by ID
+    isolated resource function put updateStatus(PowerPlantStatus status) returns json|error {
+        int? statusId = check updatePowerPlantStatus(status);
+        return { "statusId": statusId };
+    }
+
+    // Add a new power request
+    isolated resource function post request(Request request) returns json|error {
+        int? requestId = check addPowerRequest(request);
+        return { "requestId": requestId };
+    }
+
+    // Retrieve all power requests
+    isolated resource function get requests() returns Request[]|error {
+        Request[] requests = check getAllPowerRequests();
+        return requests;
     }
 
     // Retrieve all daily power production capacities from ml model
