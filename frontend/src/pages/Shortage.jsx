@@ -40,7 +40,7 @@ const Shortage = () => {
                 {/* Display Possible Shortage Dates in a styled card */}
                 <div className="flex justify-center mb-8">
                     <div className="bg-white shadow-lg rounded-lg p-6 max-w-lg text-center">
-                        <h1 className="text-3xl font-bold text-red-600 mb-4">Possible Shortage Dates</h1>
+                        <h1 className="text-3xl font-bold text-blue-800 mb-4">Possible Shortage Dates</h1>
                         <p className="text-xl text-gray-700">{shortageDates}</p>
                     </div>
                 </div>
@@ -66,7 +66,7 @@ const Shortage = () => {
                                     <td className="py-3 px-6">{shortage.description}</td> {/* Display Description */}
                                     <td className="py-3 px-6 text-center">
                                         <button
-                                            className="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 transition"
+                                            className="bg-blue-600 text-white px-4 py-2 rounded-md shadow hover:bg-blue-800 transition"
                                             onClick={() => handleRequest(shortage.id)}
                                         >
                                             Request
