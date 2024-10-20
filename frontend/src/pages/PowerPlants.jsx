@@ -9,7 +9,7 @@ const PowerPlants = () => {
 	const [newPlant, setNewPlant] = useState({
 		name: "",
 		location: "",
-		ownership: "",
+		ownership: "government",
 		daily_production_capacity: "",
 		email: "",
 	});
@@ -95,7 +95,7 @@ const PowerPlants = () => {
 									<strong>Location:</strong> {plant.location}
 								</p>
 								<p>
-									<strong>Ownership:</strong> {plant.ownership == "pub"? "Government":"Private"}
+									<strong>Ownership:</strong> {plant.ownership}
 								</p>
 								<p>
 									<strong>Daily Production Capacity:</strong>{" "}
