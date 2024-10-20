@@ -79,9 +79,9 @@ const PowerPlants = () => {
 					Add New
 				</button>
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-					{powerPlants.map((plant) => (
+					{powerPlants.map((plant, index) => (
 						<div
-							key={plant.id}
+							key={index}
 							className="border rounded-lg overflow-hidden shadow-lg"
 						>
 							<img
