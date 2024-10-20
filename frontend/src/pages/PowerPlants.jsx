@@ -86,7 +86,12 @@ const PowerPlants = () => {
         <div className="flex flex-col min-h-screen"> {/* Flexbox for layout */}
             
             <main className="flex-grow container mx-auto my-8"> {/* Allow main to grow and push footer down */}
-                <h1 className="text-3xl font-bold mb-4">Power Plants</h1>
+                {/* Card styled container for heading */}
+                <div className="bg-white shadow-lg rounded-lg p-6 mb-8 text-center mx-auto max-w-md">
+                    <h1 className="text-4xl font-bold text-blue-800">
+                        Power Plants
+                    </h1>
+                </div>
                 <button
                     onClick={() => setModalOpen(true)}
                     className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition mb-4"

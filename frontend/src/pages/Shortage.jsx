@@ -1,20 +1,26 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import RequestModal from "../components/RequestModal"; 
+import RequestModal from "../components/RequestModal";
 
 const Shortage = () => {
     const [shortages, setShortages] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedPlantId, setSelectedPlantId] = useState(null);
+    const [shortageDates, setShortageDates] = useState(""); // State to hold possible shortage dates
 
     useEffect(() => {
+        // Simulated data for shortages
         const dummyData = [
             { id: 1, name: "Plant A", capacity: "200 MW", description: "Expected power shortage due to maintenance." },
             { id: 2, name: "Plant B", capacity: "150 MW", description: "Potential shortage due to increased demand." },
             { id: 3, name: "Plant C", capacity: "300 MW", description: "Forecasted shortage due to fuel supply issues." },
         ];
         setShortages(dummyData);
+
+        // Simulated fetching of possible shortage dates from a model or API
+        const dummyShortageDates = "October 20, 2024 - November 15, 2024";
+        setShortageDates(dummyShortageDates); // Set fetched dates to the state
     }, []);
 
     const handleRequest = (id) => {
@@ -23,16 +29,22 @@ const Shortage = () => {
     };
 
     const handleSubmit = (requestData) => {
-        // Logic to handle the request submission
         console.log("Request Data:", requestData);
         alert(`Request for Power Plant ID ${requestData.powerPlantId} submitted!`);
     };
 
     return (
         <div className="flex flex-col min-h-screen">
-            
+
             <main className="flex-grow p-6 bg-gray-100">
-                <h1 className="text-3xl font-bold mb-6">Possible Shortages</h1>
+                {/* Display Possible Shortage Dates in a styled card */}
+                <div className="flex justify-center mb-8">
+                    <div className="bg-white shadow-lg rounded-lg p-6 max-w-lg text-center">
+                        <h1 className="text-3xl font-bold text-blue-800 mb-4">Possible Shortage Dates</h1>
+                        <p className="text-xl text-gray-700">{shortageDates}</p>
+                    </div>
+                </div>
+
                 <h2 className="text-xl font-semibold mb-4">Private Power Plants</h2>
 
                 {/* Shortage Table */}
@@ -54,7 +66,7 @@ const Shortage = () => {
                                     <td className="py-3 px-6">{shortage.description}</td> {/* Display Description */}
                                     <td className="py-3 px-6 text-center">
                                         <button
-                                            className="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 transition"
+                                            className="bg-blue-600 text-white px-4 py-2 rounded-md shadow hover:bg-blue-800 transition"
                                             onClick={() => handleRequest(shortage.id)}
                                         >
                                             Request
@@ -74,7 +86,7 @@ const Shortage = () => {
                 powerPlantId={selectedPlantId}
                 onSubmit={handleSubmit}
             />
-            
+
         </div>
     );
 };

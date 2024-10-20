@@ -15,7 +15,7 @@ const UpdateModal = ({ plant, onClose }) => {
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-70">
             <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-                <h2 className="text-2xl font-semibold mb-4 text-center">Update Power Plant</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-center ">Update Power Plant</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="space-y-4">
                         <div>
@@ -29,7 +29,7 @@ const UpdateModal = ({ plant, onClose }) => {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Capacity</label>
+                            <label className="block text-sm font-medium text-gray-700">Current_Capacity</label>
                             <input
                                 type="text"
                                 value={capacity}
