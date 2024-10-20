@@ -5,9 +5,6 @@ import Modal from "../components/Model"; // Import the Modal component
 const PowerPlants = () => {
 	// useState to hold power plant data
 	const [powerPlants, setPowerPlants] = useState([]);
-
-	// State to hold power plant data
-	const [plants, setPlants] = useState([]);
 	const [modalOpen, setModalOpen] = useState(false);
 	const [newPlant, setNewPlant] = useState({
 		name: "",
@@ -52,7 +49,8 @@ const PowerPlants = () => {
 				console.log(error);
 			});
 
-		setPowerPlants([...plants, newPlant]);
+		// setPowerPlants([...plants, newPlant]);
+        powerPlants.push(newPlant);
 		setModalOpen(false);
 		setNewPlant({
 			name: "",
