@@ -95,7 +95,7 @@ public isolated function getAllPowerPlants() returns error|PowerPlant[] {
 }
 
 // Function to retrieve all private power plants from MySQL
-public isolated function getPrivatePowerPlants() returns error | PowerPlant[] {
+public isolated function getPrivatePowerPlants() returns error|PowerPlant[] {
     //check initMySQL(); // Ensure MySQL is initialized
 
     PowerPlant[] powerPlants = [];
@@ -112,7 +112,7 @@ public isolated function getPrivatePowerPlants() returns error | PowerPlant[] {
 }
 
 // Function to update a power plant in the MySQL database
-public isolated function updatePowerPlant(PowerPlant plant) returns error? | int? {
+public isolated function updatePowerPlant(PowerPlant plant) returns error?|int? {
     // Ensure MySQL is initialized
     // check initMySQL();
 
@@ -227,7 +227,7 @@ public function getAllPowerRequests() returns error|Request[] {
 // Integration with Flask ML model
 
 // Function to get daily power allocation from Flask ML model
-public isolated  function dailyPowerAllocation() returns json|error {
+public isolated function dailyPowerAllocation() returns json|error {
     // get total daily production capacity of all power plants
     PowerPlant[] powerPlants = check getAllPowerPlants();
     decimal totalDailyProductionCapacity = 0;
@@ -242,14 +242,14 @@ public isolated  function dailyPowerAllocation() returns json|error {
 
     // Send the POST request to Flask model
     http:Response response = check flaskClient->post("/daily_power", requestPayload);
-    
+
     // Get the prediction result
     json responseData = check response.getJsonPayload();
     return responseData;
 }
 
 // Function to shortage date from Flask ML model
-public isolated  function shortageDate() returns json|error {
+public isolated function shortageDate() returns json|error {
     // Prepare the JSON payload for Flask ML model
     json requestPayload = {
         "payload": null
@@ -264,27 +264,27 @@ public isolated  function shortageDate() returns json|error {
 }
 
 // Function to shortage amount from Flask ML model
-public isolated  function shortageAmount() returns json|error {
+public isolated function shortageAmount() returns json|error {
     // Prepare the JSON payload for Flask ML model
     json requestPayload = {
         "payload": null
     };
 
     // Send the POST request to Flask model
-    http:Response response = check flaskClient->post("/shortage_date", requestPayload);
-    
+    http:Response response = check flaskClient->post("/shortage_amount", requestPayload);
+
     // Get the prediction result
     json responseData = check response.getJsonPayload();
     return responseData;
 }
 
 // Function to suggest minimum number of private power plants based on shortage amount
-public isolated function suggestPrivatePowerPlants() returns json|error {
-    decimal shortageAmount = check shortageAmount();
+public isolated function suggestPrivatePowerPlants(decimal shortage_amount) returns json|error {
+    //var shortageAmount = check shortageAmount();
+    decimal shortageAmount = shortage_amount;
     PowerPlant[] privatePowerPlants = check getPrivatePowerPlants();
 
     // Sort private power plants by daily production capacity in descending order
-    privatePowerPlants.sort((PowerPlant a, PowerPlant b) => b.daily_production_capacity <=> a.daily_production_capacity);
 
     decimal accumulatedCapacity = 0;
     PowerPlant[] selectedPowerPlants = [];
@@ -299,19 +299,12 @@ public isolated function suggestPrivatePowerPlants() returns json|error {
 
     json[] result = [];
     foreach var plant in selectedPowerPlants {
-        result.push({ "id": plant.id, "name": plant.name });
+        result.push({"id": plant.id, "name": plant.name});
     }
 
     return result;
 }
 
-
-/**
- * ===============================================
- * Service to interact with power plant operations
- * ===============================================
- */
- 
 // Service to interact with power plant operations
 @http:ServiceConfig {
     cors: {
@@ -319,7 +312,6 @@ public isolated function suggestPrivatePowerPlants() returns json|error {
         allowMethods: ["GET", "POST", "DELETE"]
     }
 }
-
 
 // HTTP service to interact with power plant operations
 service /powerplant on httpListener {
@@ -340,7 +332,7 @@ service /powerplant on httpListener {
     // Update a power plant by ID
     isolated resource function put update(PowerPlant plant) returns json|error {
         int? plantId = check updatePowerPlant(plant);
-        return { "plantId": plantId };
+        return {"plantId": plantId};
     }
 
     // Delete a power plant by ID
@@ -348,7 +340,6 @@ service /powerplant on httpListener {
         int? affectedRows = check deletePowerPlant(id);
         return {"deletedCount": affectedRows};
     }
-
 
     // Retrieve all daily power production capacities from ml model
     isolated resource function get dailyPower() returns json|error {
@@ -369,8 +360,8 @@ service /powerplant on httpListener {
     }
 
     // Suggest minimum number of private power plants based on shortage amount
-    isolated resource function get suggestPrivate() returns json|error {
-        json response = check suggestPrivatePowerPlants();
+    isolated resource function post suggestPrivate(decimal shortage_amount) returns json|error {
+        json response = check suggestPrivatePowerPlants(shortage_amount);
         return response;
     }
 }
