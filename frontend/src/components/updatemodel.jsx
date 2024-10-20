@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 
-const UpdateModal = ({ plant, onClose }) => {
+const UpdateModal = ({ plant, onClose}) => {
     const [description, setDescription] = useState(plant.description);
     const [capacity, setCapacity] = useState(plant.capacity);
+
+    
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -19,7 +21,7 @@ const UpdateModal = ({ plant, onClose }) => {
                 <form onSubmit={handleSubmit}>
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Description</label>
+                            <label className="block text-sm font-medium text-gray-700">Note</label>
                             <input
                                 type="text"
                                 value={description}
