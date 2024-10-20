@@ -103,7 +103,7 @@ public isolated function updatePowerPlant(PowerPlant plant) returns error? | int
     sql:ExecutionResult result = check dbClient->execute(query);
 
     int affectedRows = result.affectedRowCount ?: 0;
-    if (affectedRows > 0 && affectedRows is int) {
+    if (affectedRows > 0) {
         return plant.id;
     } else {
         return error("No rows were updated");
@@ -239,7 +239,7 @@ public isolated  function shortageDate() returns json|error {
     };
 
     // Send the POST request to Flask model
-    http:Response response = check flaskClient->post("/predict", requestPayload);
+    http:Response response = check flaskClient->post("/shortage_date", requestPayload);
 
     // Get the prediction result
     json responseData = check response.getJsonPayload();
