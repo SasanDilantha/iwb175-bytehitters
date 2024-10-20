@@ -1,22 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
+import axios, { all } from "axios";
 import WorldWind from "@nasaworldwind/worldwind";
 
 const WorldWindGlobe = () => {
 	let [allocations, setAllocations] = useState({});
 	const canvasRef = useRef(null);
-
-	useEffect(() => {  
-		axios
-			.get("http://localhost:9090/powerplant/dailyPower")
-			.then((response) => {
-				setAllocations(response.data["allocations"]);
-			})
-			.catch((error) => {
-				console.error(error); 
-			});
-	}, []); 
-
 	const districts = [
 		{ name: "Colombo", latitude: 6.9271, longitude: 79.8612 },
 		{ name: "Gampaha", latitude: 7.0912, longitude: 79.9985 },
@@ -45,44 +33,34 @@ const WorldWindGlobe = () => {
 		{ name: "Polonnaruwa", latitude: 7.9396, longitude: 81.0016 },
 	];
 
-	// Function to add a placemark
-	function addPlaceMark(wwd, lat, lon, district, allocation) {
-		const placemarkLayer = new WorldWind.RenderableLayer();
-		wwd.addLayer(placemarkLayer);
-
-		const placemarkAttributes = new WorldWind.PlacemarkAttributes(null);
-		placemarkAttributes.imageOffset = new WorldWind.Offset(
-			WorldWind.OFFSET_FRACTION,
-			0.3,
-			WorldWind.OFFSET_FRACTION,
-			0.0
-		);
-		placemarkAttributes.labelAttributes.offset = new WorldWind.Offset(
-			WorldWind.OFFSET_FRACTION,
-			0.5,
-			WorldWind.OFFSET_FRACTION,
-			1.0
-		);
-		placemarkAttributes.imageSource =
-			WorldWind.configuration.baseUrl + "images/pushpins/plain-red.png";
-
-		const position = new WorldWind.Position(lat, lon, 100.0);
-		const placemark = new WorldWind.Placemark(
-			position,
-			false,
-			placemarkAttributes
-		);
-
-		placemark.label = district + "\n" + parseFloat(allocation, 2).toFixed(2) + " GWh";
-		placemark.alwaysOnTop = true;
-
-		placemarkLayer.addRenderable(placemark);
-
-		// Force a redraw of the WorldWindow to ensure everything renders correctly
-		wwd.redraw();
-	}
+	useEffect(() => {
+		loadWorldWind();
+	}, []);
 
 	useEffect(() => {
+		loadAllocations();
+	}, []);
+
+	useEffect(() => {
+		if (Object.keys(allocations).length > 0) {
+			loadWorldWind();
+		}
+	}, [allocations]);
+
+	// Function to load power allocations
+	function loadAllocations() {
+		axios
+			.get("http://localhost:9090/powerplant/dailyPower")
+			.then((response) => {
+				setAllocations(response.data["allocations"]);
+			})
+			.catch((error) => {
+				console.error(error);
+			});
+	}
+
+	// Function to load worldwind
+	function loadWorldWind() {
 		try {
 			// Create a WorldWindow for the canvas after component mounts
 			const wwd = new WorldWind.WorldWindow(canvasRef.current);
@@ -116,13 +94,51 @@ const WorldWindGlobe = () => {
 					allocations[district.name]
 				);
 			});
- 
+
 			// Log layer info for debugging
 			console.log("Layers added: ", wwd.layers);
 		} catch (error) {
 			console.error("Error initializing WorldWind:", error);
 		}
-	}, []);
+	}
+
+	// Function to add a placemark
+	function addPlaceMark(wwd, lat, lon, district, allocation) {
+		const placemarkLayer = new WorldWind.RenderableLayer();
+		wwd.addLayer(placemarkLayer);
+
+		const placemarkAttributes = new WorldWind.PlacemarkAttributes(null);
+		placemarkAttributes.imageOffset = new WorldWind.Offset(
+			WorldWind.OFFSET_FRACTION,
+			0.3,
+			WorldWind.OFFSET_FRACTION,
+			0.0
+		);
+		placemarkAttributes.labelAttributes.offset = new WorldWind.Offset(
+			WorldWind.OFFSET_FRACTION,
+			0.5,
+			WorldWind.OFFSET_FRACTION,
+			1.0
+		);
+		placemarkAttributes.imageSource =
+			WorldWind.configuration.baseUrl + "images/pushpins/plain-red.png";
+
+		const position = new WorldWind.Position(lat, lon, 100.0);
+		const placemark = new WorldWind.Placemark(
+			position,
+			false,
+			placemarkAttributes
+		);
+
+		placemark.label =
+			district + "\n" + parseFloat(allocation, 2).toFixed(2) + " GWh";
+		placemark.alwaysOnTop = true;
+
+		placemarkLayer.addRenderable(placemark);
+
+		// Force a redraw of the WorldWindow to ensure everything renders correctly
+		wwd.redraw();
+	}
 
 	return (
 		<div>
