@@ -29,7 +29,7 @@ const RequestManager = () => {
 
   const handleModalClose = () => {
     setIsModalOpen(false);
-    setSelectedPlant(null);
+    // setSelectedPlant(null);
   };
 
   return (
