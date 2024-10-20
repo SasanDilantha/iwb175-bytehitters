@@ -45,9 +45,9 @@ const Navbar = () => {
           <a
             href="/request-manager"
             className="text-white px-4 py-2 rounded-full border border-white hover:bg-gray-300 hover:text-black transition duration-300 ease-in-out"
-            aria-label="Request Manager"
+            aria-label="Disruption Manager"
           >
-            Request Manager
+            Disruption Manager
           </a>
         </div>
 

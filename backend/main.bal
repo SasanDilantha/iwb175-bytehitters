@@ -1,19 +1,19 @@
-import ballerinax/mysql;
-import ballerina/sql;
 import ballerina/http;
+import ballerina/io;
+import ballerina/sql;
+import ballerinax/mysql;
 import ballerinax/mysql.driver as _;
 
-
 // Define the variables globally without initialization
-final mysql:Client dbClient = check new(
-    host="localhost", user="root", password="testUser", port=3306, database="bal"
+final mysql:Client dbClient = check new (
+    host = "localhost", user = "root", password = "testUser", port = 3306, database = "bal"
 );
 
 // Define the HTTP client for Flask ML model
-final http:Client flaskClient = check new("http://localhost:5000");
+final http:Client flaskClient = check new ("http://localhost:5000");
 
 // HTTP service listener running on custom port 9090
-listener http:Listener httpListener = new(9090);
+listener http:Listener httpListener = new (9090);
 
 // Function to initialize MySQL connection
 // function initMySQL() returns error? {
@@ -51,8 +51,20 @@ public type Request record {
     string status;
 };
 
-// Function to add a power plant to the MySQL database
-public isolated function addPowerPlant(PowerPlant plant) returns error? | int? {
+type SampleErrorData record {|
+    int code;
+    string reason;
+|};
+
+type SampleError error<SampleErrorData>;
+
+isolated function getSampleError() returns SampleError {
+    return error("Transaction Failure", error("Database Error"), code = 20,
+                            reason = "deadlock condition");
+}
+
+// Function to add a power plant to the MySQL database 
+public isolated function addPowerPlant(PowerPlant plant) returns error?|int? {
     //check initMySQL(); // Ensure MySQL is initialized
     sql:ParameterizedQuery query = `INSERT INTO PowerPlant (name, mail, mobile, location, ownership, daily_production_capacity) VALUES (${plant.name}, ${plant.mail}, ${plant.mobile}, ${plant.location}, ${plant.ownership}, ${plant.daily_production_capacity})`;
     sql:ExecutionResult result = check dbClient->execute(query);
@@ -66,7 +78,7 @@ public isolated function addPowerPlant(PowerPlant plant) returns error? | int? {
 }
 
 // Function to retrieve all power plants from MySQL
-public isolated function getAllPowerPlants() returns error | PowerPlant[] {
+public isolated function getAllPowerPlants() returns error|PowerPlant[] {
     //check initMySQL(); // Ensure MySQL is initialized
 
     PowerPlant[] powerPlants = [];
@@ -117,7 +129,7 @@ public isolated function updatePowerPlant(PowerPlant plant) returns error? | int
 }
 
 // Function to delete a power plant from the MySQL database
-public isolated function deletePowerPlant(int plantId) returns error? | int? {
+public isolated function deletePowerPlant(int plantId) returns error?|int? {
     //check initMySQL(); // Ensure MySQL is initialized
 
     sql:ParameterizedQuery query = `DELETE FROM PowerPlant WHERE id = ${plantId}`;
@@ -132,7 +144,7 @@ public isolated function deletePowerPlant(int plantId) returns error? | int? {
 }
 
 // Function to add a new power plant status to the MySQL database
-public function addPowerPlantStatus(PowerPlantStatus status) returns error? | int? {
+public function addPowerPlantStatus(PowerPlantStatus status) returns error?|int? {
     //check initMySQL(); // Ensure MySQL is initialized
 
     sql:ParameterizedQuery query = `INSERT INTO PowerPlantStatus (name, status, produce_capacity) VALUES (${status.name}, ${status.status}, ${status.produceCapacity})`;
@@ -147,15 +159,14 @@ public function addPowerPlantStatus(PowerPlantStatus status) returns error? | in
 }
 
 // Function to retrieve all power plant statuses from MySQL
-public function getAllPowerPlantStatuses() returns error | PowerPlantStatus[] {
+public function getAllPowerPlantStatuses() returns error|PowerPlantStatus[] {
     //check initMySQL(); // Ensure MySQL is initialized
 
     PowerPlantStatus[] powerPlantStatuses = [];
 
     sql:ParameterizedQuery query = `SELECT * FROM PowerPlantStatus`;
     stream<PowerPlantStatus, sql:Error?> resultStream = dbClient->query(query);
-    
-    
+
     check from PowerPlantStatus powerPlantStatus in resultStream
         do {
             powerPlantStatuses.push(powerPlantStatus);
@@ -165,7 +176,7 @@ public function getAllPowerPlantStatuses() returns error | PowerPlantStatus[] {
 }
 
 // Function to update a power plant status in the MySQL database
-public function updatePowerPlantStatus(int plantId, PowerPlantStatus status) returns error? | int? {
+public function updatePowerPlantStatus(int plantId, PowerPlantStatus status) returns error?|int? {
     //check initMySQL(); // Ensure MySQL is initialized
 
     sql:ParameterizedQuery query = `UPDATE PowerPlantStatus SET status = ${status.status}, produce_capacity = ${status.produceCapacity} WHERE id = ${plantId}`;
@@ -181,7 +192,7 @@ public function updatePowerPlantStatus(int plantId, PowerPlantStatus status) ret
 }
 
 // Function to add a power request to the MySQL database
-public function addPowerRequest(Request request) returns error?| int? {
+public function addPowerRequest(Request request) returns error?|int? {
     //check initMySQL(); // Ensure MySQL is initialized
 
     sql:ParameterizedQuery query = `INSERT INTO Request (power_plant_id, request_capacity, request_date, status) VALUES (${request.powerPlantId}, ${request.requestCapacity}, ${request.requestDate}, ${request.status})`;
@@ -198,12 +209,12 @@ public function addPowerRequest(Request request) returns error?| int? {
 }
 
 // Function to retrieve all power requests from MySQL
-public function getAllPowerRequests() returns error | Request[] {
+public function getAllPowerRequests() returns error|Request[] {
     //check initMySQL(); // Ensure MySQL is initialized
 
     sql:ParameterizedQuery query = `SELECT * FROM Request`;
     stream<Request, sql:Error?> resultStream = dbClient->query(query);
-    
+
     Request[] requests = [];
     check from Request request in resultStream
         do {
@@ -213,11 +224,7 @@ public function getAllPowerRequests() returns error | Request[] {
     return requests;
 }
 
-/**
- * ===============================================
- * Integration with Flask ML model
- * ===============================================
- */
+// Integration with Flask ML model
 
 // Function to get daily power allocation from Flask ML model
 public isolated  function dailyPowerAllocation() returns json|error {
@@ -249,8 +256,8 @@ public isolated  function shortageDate() returns json|error {
     };
 
     // Send the POST request to Flask model
-    http:Response response = check flaskClient->post("/shortage_date", requestPayload);
-    
+    http:Response response = check flaskClient->post("/predict", requestPayload);
+
     // Get the prediction result
     json responseData = check response.getJsonPayload();
     return responseData;
@@ -304,6 +311,15 @@ public isolated function suggestPrivatePowerPlants() returns json|error {
  * Service to interact with power plant operations
  * ===============================================
  */
+ 
+// Service to interact with power plant operations
+@http:ServiceConfig {
+    cors: {
+        allowOrigins: ["http://localhost:5173"],
+        allowMethods: ["GET", "POST", "DELETE"]
+    }
+}
+
 
 // HTTP service to interact with power plant operations
 service /powerplant on httpListener {
@@ -316,8 +332,9 @@ service /powerplant on httpListener {
 
     // Add a new power plant
     isolated resource function post add(PowerPlant plant) returns json|error {
+        io:println("Adding power plant: ", plant);
         int? plantId = check addPowerPlant(plant);
-        return { "plantId": plantId };
+        return {"plantId": plantId};
     }
 
     // Update a power plant by ID
@@ -329,7 +346,7 @@ service /powerplant on httpListener {
     // Delete a power plant by ID
     isolated resource function delete remove(int id) returns json|error {
         int? affectedRows = check deletePowerPlant(id);
-        return { "deletedCount": affectedRows };
+        return {"deletedCount": affectedRows};
     }
 
 
@@ -357,3 +374,4 @@ service /powerplant on httpListener {
         return response;
     }
 }
+
