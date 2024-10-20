@@ -12,6 +12,9 @@ final mysql:Client dbClient = check new(
 // Define the HTTP client for Flask ML model
 final http:Client flaskClient = check new("http://localhost:5000");
 
+// HTTP service listener running on custom port 9090
+listener http:Listener httpListener = new(9090);
+
 // Function to initialize MySQL connection
 // function initMySQL() returns error? {
 //     if dbClient is mysql:Client {
@@ -47,7 +50,7 @@ public type Request record {
 };
 
 // Function to add a power plant to the MySQL database
-public function addPowerPlant(PowerPlant plant) returns error? | int? {
+public isolated function addPowerPlant(PowerPlant plant) returns error? | int? {
     //check initMySQL(); // Ensure MySQL is initialized
     sql:ParameterizedQuery query = `INSERT INTO PowerPlant (name, location, ownership, daily_production_capacity) VALUES (${plant.name}, ${plant.location}, ${plant.ownership}, ${plant.dailyProductionCapacity})`;
     sql:ExecutionResult result = check dbClient->execute(query);
@@ -61,7 +64,7 @@ public function addPowerPlant(PowerPlant plant) returns error? | int? {
 }
 
 // Function to retrieve all power plants from MySQL
-public function getAllPowerPlants() returns error | PowerPlant[] {
+public isolated function getAllPowerPlants() returns error | PowerPlant[] {
     //check initMySQL(); // Ensure MySQL is initialized
 
     PowerPlant[] powerPlants = [];
@@ -78,7 +81,7 @@ public function getAllPowerPlants() returns error | PowerPlant[] {
 }
 
 // Function to delete a power plant from the MySQL database
-public function deletePowerPlant(int plantId) returns error? | int? {
+public isolated function deletePowerPlant(int plantId) returns error? | int? {
     //check initMySQL(); // Ensure MySQL is initialized
 
     sql:ParameterizedQuery query = `DELETE FROM PowerPlant WHERE id = ${plantId}`;
@@ -188,4 +191,26 @@ public function sendPowerPlantDataToML(PowerPlantStatus status) returns json|err
     // Get the prediction result
     json responseData = check response.getJsonPayload();
     return responseData;
+}
+
+// HTTP service to interact with power plant operations
+service /powerplant on httpListener {
+
+    // Retrieve all power plants
+    isolated resource function get all() returns PowerPlant[]|error {
+        PowerPlant[] powerPlants = check getAllPowerPlants();
+        return powerPlants;
+    }
+
+    // Add a new power plant
+    isolated resource function post add(PowerPlant plant) returns json|error {
+        int? plantId = check addPowerPlant(plant);
+        return { "plantId": plantId };
+    }
+
+    // Delete a power plant by ID
+    isolated resource function delete remove(int id) returns json|error {
+        int? affectedRows = check deletePowerPlant(id);
+        return { "deletedCount": affectedRows };
+    }
 }
