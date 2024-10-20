@@ -10,6 +10,12 @@ const Shortage = () => {
 	const [suggestedPowerPlants, setSuggestedPowerPlants] = useState([]);
 
 	useEffect(() => {
+		getShortageDate();
+		getShortageAmount();
+		getSuggestedPowerPlants();
+	}, [shortageAmount]);
+
+	function getShortageDate() {
 		axios
 			.get("http://localhost:9090/powerplant/shortageDate")
 			.then((response) => {
@@ -35,9 +41,9 @@ const Shortage = () => {
 			.catch((error) => {
 				console.error(error);
 			});
-	}, []);
+	}
 
-	useEffect(() => {
+	function getShortageAmount() {
 		axios
 			.get("http://localhost:9090/powerplant/shortageAmount")
 			.then((response) => {
@@ -46,10 +52,9 @@ const Shortage = () => {
 			.catch((error) => {
 				console.error(error);
 			});
-	}, []);
+	}
 
-	useEffect(() => {
-		console.log("Shortage Amount: ", shortageAmount);
+	function getSuggestedPowerPlants() {
 		axios
 			.post(
 				"http://localhost:9090/powerplant/suggestPrivate?shortage_amount=" +
@@ -57,12 +62,11 @@ const Shortage = () => {
 			)
 			.then((response) => {
 				setSuggestedPowerPlants(response.data);
-				console.log(response.data);
 			})
 			.catch((error) => {
 				console.error(error);
 			});
-	}, []);
+	}
 
 	const handleRequest = (id) => {
 		console.log("Requesting Power Plant ID:", id);

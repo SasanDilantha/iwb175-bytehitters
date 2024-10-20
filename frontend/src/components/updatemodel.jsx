@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import axios from "axios";
+import React, { useState } from "react";
 
 const UpdateModal = ({ plant, onClose }) => {
-
   const [status, setStatus] = useState();
   const [capacity, setCapacity] = useState();
   const [powerPlantStatus, setPowerPlantStatus] = useState({
@@ -22,12 +22,12 @@ const UpdateModal = ({ plant, onClose }) => {
   // };
   const submitForm = (e) => {
     e.preventDefault();
-    // console.log(formData, "Foram data");
+    // console.log(formData, "Foram data"); 
 
     axios
       .post("http://localhost:9090/powerplant/status", formData)
       .then((response) => {
-        console.log(response.data);
+        console.log(response.data); 
       })
       .catch((error) => {
         console.log(error);
@@ -118,10 +118,12 @@ const UpdateModal = ({ plant, onClose }) => {
               >
                 Cancel
               </button>
-
             </div>
-        </div>
-    );
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 };
 
 export default UpdateModal;
