@@ -207,11 +207,7 @@ public function getAllPowerRequests() returns error|Request[] {
     return requests;
 }
 
-/**
- * ===============================================
- * Integration with Flask ML model
- * ===============================================
- */
+// Integration with Flask ML model
 
 // Function to get daily power allocation from Flask ML model
 public isolated  function dailyPowerAllocation() returns json|error {
@@ -243,12 +239,6 @@ public isolated  function shortageDate() returns json|error {
     };
 
     // Send the POST request to Flask model
-    http:Response response = check flaskClient->post("/shortage_date", requestPayload);
-        "feature1": status.produceCapacity, // Adjust based on your features
-        "feature2": status.status
-    };
-
-    // Send the POST request to Flask model
     http:Response response = check flaskClient->post("/predict", requestPayload);
 
     // Get the prediction result
@@ -271,12 +261,7 @@ public isolated  function shortageAmount() returns json|error {
     return responseData;
 }
 
-/**
- * ===============================================
- * Service to interact with power plant operations
- * ===============================================
- */
-
+// Service to interact with power plant operations
 @http:ServiceConfig {
     cors: {
         allowOrigins: ["http://localhost:5173"],
@@ -330,5 +315,4 @@ service /powerplant on httpListener {
         json response = check shortageAmount();
         return response;
     }
-}
 }
