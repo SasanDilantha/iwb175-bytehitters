@@ -27,11 +27,13 @@ listener http:Listener httpListener = new(9090);
 // }
 
 public type PowerPlant record {
-    int id;
+    int id?;
     string name;
+    string mail?;
+    string mobile?;
     string location;
     string ownership;
-    decimal dailyProductionCapacity;
+    decimal daily_production_capacity;
 };
 
 public type PowerPlantStatus record {
@@ -52,7 +54,7 @@ public type Request record {
 // Function to add a power plant to the MySQL database
 public isolated function addPowerPlant(PowerPlant plant) returns error? | int? {
     //check initMySQL(); // Ensure MySQL is initialized
-    sql:ParameterizedQuery query = `INSERT INTO PowerPlant (name, location, ownership, daily_production_capacity) VALUES (${plant.name}, ${plant.location}, ${plant.ownership}, ${plant.dailyProductionCapacity})`;
+    sql:ParameterizedQuery query = `INSERT INTO PowerPlant (name, mail, mobile, location, ownership, daily_production_capacity) VALUES (${plant.name}, ${plant.mail}, ${plant.mobile}, ${plant.location}, ${plant.ownership}, ${plant.daily_production_capacity})`;
     sql:ExecutionResult result = check dbClient->execute(query);
     int|string? lastInsertId = result.lastInsertId;
     if lastInsertId is int {
@@ -78,6 +80,23 @@ public isolated function getAllPowerPlants() returns error | PowerPlant[] {
         };
     check resultStream.close();
     return powerPlants;
+}
+
+// Function to update a power plant in the MySQL database
+public isolated function updatePowerPlant(PowerPlant plant) returns error? | int? {
+    // Ensure MySQL is initialized
+    // check initMySQL();
+
+    sql:ParameterizedQuery query = `UPDATE PowerPlant SET name = ${plant.name}, mail = ${plant.mail}, mobile = ${plant.mobile}, location = ${plant.location}, ownership = ${plant.ownership}, daily_production_capacity = ${plant.daily_production_capacity} WHERE id = ${plant.id}`;
+    sql:ExecutionResult result = check dbClient->execute(query);
+
+    int affectedRows = result.affectedRowCount ?: 0;
+    if (affectedRows > 0 && affectedRows is int) {
+        return plant.id;
+    } else {
+        return error("No rows were updated");
+    }
+    // log:printInfo("Power plant status updated successfully.");
 }
 
 // Function to delete a power plant from the MySQL database
@@ -177,21 +196,69 @@ public function getAllPowerRequests() returns error | Request[] {
     return requests;
 }
 
-// Function to send power plant data to the Flask ML model and receive prediction
-public function sendPowerPlantDataToML(PowerPlantStatus status) returns json|error {
+/**
+ * ===============================================
+ * Integration with Flask ML model
+ * ===============================================
+ */
+
+// Function to get daily power allocation from Flask ML model
+public isolated  function dailyPowerAllocation() returns json|error {
+    // get total daily production capacity of all power plants
+    PowerPlant[] powerPlants = check getAllPowerPlants();
+    decimal totalDailyProductionCapacity = 0;
+    foreach var plant in powerPlants {
+        totalDailyProductionCapacity += plant.daily_production_capacity;
+    }
+
     // Prepare the JSON payload for Flask ML model
     json requestPayload = {
-        "feature1": status.produceCapacity,  // Adjust based on your features
-        "feature2": status.status
+        "total_power_available": totalDailyProductionCapacity
     };
 
     // Send the POST request to Flask model
-    http:Response response = check flaskClient->post("/predict", requestPayload);
+    http:Response response = check flaskClient->post("/daily_power", requestPayload);
     
     // Get the prediction result
     json responseData = check response.getJsonPayload();
     return responseData;
 }
+
+// Function to shortage date from Flask ML model
+public isolated  function shortageDate() returns json|error {
+    // Prepare the JSON payload for Flask ML model
+    json requestPayload = {
+        "payload": null
+    };
+
+    // Send the POST request to Flask model
+    http:Response response = check flaskClient->post("/shortage_date", requestPayload);
+    
+    // Get the prediction result
+    json responseData = check response.getJsonPayload();
+    return responseData;
+}
+
+// Function to shortage amount from Flask ML model
+public isolated  function shortageAmount() returns json|error {
+    // Prepare the JSON payload for Flask ML model
+    json requestPayload = {
+        "payload": null
+    };
+
+    // Send the POST request to Flask model
+    http:Response response = check flaskClient->post("/shortage_date", requestPayload);
+    
+    // Get the prediction result
+    json responseData = check response.getJsonPayload();
+    return responseData;
+}
+
+/**
+ * ===============================================
+ * Service to interact with power plant operations
+ * ===============================================
+ */
 
 // HTTP service to interact with power plant operations
 service /powerplant on httpListener {
@@ -208,9 +275,34 @@ service /powerplant on httpListener {
         return { "plantId": plantId };
     }
 
+    // Update a power plant by ID
+    isolated resource function put update(PowerPlant plant) returns json|error {
+        int? plantId = check updatePowerPlant(plant);
+        return { "plantId": plantId };
+    }
+
     // Delete a power plant by ID
     isolated resource function delete remove(int id) returns json|error {
         int? affectedRows = check deletePowerPlant(id);
         return { "deletedCount": affectedRows };
+    }
+
+
+    // Retrieve all daily power production capacities from ml model
+    isolated resource function get dailyPower() returns json|error {
+        json response = check dailyPowerAllocation();
+        return response;
+    }
+
+    // Retrieve shortage date from ml model
+    isolated resource function get shortageDate() returns json|error {
+        json response = check shortageDate();
+        return response;
+    }
+
+    // Retrieve shortage amount from ml model
+    isolated resource function get shortageAmount() returns json|error {
+        json response = check shortageAmount();
+        return response;
     }
 }
