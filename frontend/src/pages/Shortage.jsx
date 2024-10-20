@@ -14,7 +14,7 @@ const Shortage = () => {
 			.get("http://localhost:9090/powerplant/shortageDate")
 			.then((response) => {
 				let date = new Date(response.data["shortage_date"]);
-				const monthNames = [ 
+				const monthNames = [
 					"January",
 					"February",
 					"March",
@@ -46,7 +46,7 @@ const Shortage = () => {
 			.catch((error) => {
 				console.error(error);
 			});
-	},[]);
+	}, []);
 
 	useEffect(() => {
 		console.log("Shortage Amount: ", shortageAmount);
@@ -71,18 +71,34 @@ const Shortage = () => {
 	};
 
 	const handleSubmit = (requestData) => {
-		console.log("Request Data:", requestData);
-		alert(`Request for Power Plant ID ${requestData.powerPlantId} submitted!`);
+		// power_plant_id, request_capacity, request_date, status
+		let data = {
+			powerPlantId: selectedPlantId,
+			requestCapacity: parseFloat(requestData.requestAmount),
+			requestDate: requestData.date,
+			status: requestData.status,
+		}
+
+		axios
+			.post("http://localhost:9090/powerplant/request", data)
+			.then((response) => {
+				console.log(response.data);
+			})
+			.catch((error) => {
+				console.error(error);
+			});
+
+		alert(`Request for Power Plant ID ${requestData.id} submitted!`);
 	};
 
-	return ( 
+	return (
 		<div className="flex flex-col min-h-screen">
 			<main className="flex-grow p-6 bg-gray-100">
 				{/* Display Possible Shortage Dates in a styled card */}
 				<div className="flex justify-center mb-8">
 					<div className="bg-white shadow-lg rounded-lg p-6 max-w-lg text-center">
 						<h1 className="text-3xl font-bold text-blue-800 mb-4">
-							Possible Shortage Date: 
+							Possible Shortage Date:
 						</h1>
 						<p className="text-xl text-gray-700 font-bold">{nextShotageDate}</p>
 					</div>

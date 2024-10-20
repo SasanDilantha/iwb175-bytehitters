@@ -16,6 +16,7 @@ const RequestModal = ({ isOpen, onClose, powerPlantId, onSubmit }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         onSubmit(requestData);
+        console.log(requestData);
         onClose(); // Close the modal after submission
     };
 
