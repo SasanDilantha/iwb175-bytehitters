@@ -1,6 +1,7 @@
 import ballerinax/mysql;
 import ballerina/sql;
 import ballerina/http;
+import ballerinax/mysql.driver as _;
 
 
 // Define the variables globally without initialization

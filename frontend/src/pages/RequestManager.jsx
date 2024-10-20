@@ -67,8 +67,6 @@ const RequestManager = () => {
                     onClose={handleModalClose}
                 />
             )}
-
-            <Footer />
         </div>
     );
 };

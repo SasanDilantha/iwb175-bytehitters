@@ -16,7 +16,6 @@ def shortage_date():
     next_date_of_shortage = init_shortage_prediction.get_next_date_of_shortage()
     return jsonify({'shortage_date': next_date_of_shortage})
 
-
 @app.route('/shortage_amount', methods=['POST'])
 def shortage_amount():
     shortage_amount = init_shortage_prediction.get_shortage_amount()
