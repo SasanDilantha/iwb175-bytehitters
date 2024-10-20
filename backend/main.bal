@@ -300,7 +300,7 @@ public isolated function suggestPrivatePowerPlants(decimal shortage_amount) retu
 
     json[] result = [];
     foreach var plant in selectedPowerPlants {
-        result.push({"id": plant.id, "name": plant.name});
+        result.push({"id": plant.id, "name": plant.name, "daily_production_capacity": plant.daily_production_capacity, "location": plant.location});
     }
 
     return result;
