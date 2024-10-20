@@ -82,6 +82,23 @@ public isolated function getAllPowerPlants() returns error | PowerPlant[] {
     return powerPlants;
 }
 
+// Function to retrieve all private power plants from MySQL
+public isolated function getPrivatePowerPlants() returns error | PowerPlant[] {
+    //check initMySQL(); // Ensure MySQL is initialized
+
+    PowerPlant[] powerPlants = [];
+
+    sql:ParameterizedQuery query = `SELECT * FROM PowerPlant WHERE ownership = 'pvt'`;
+    stream<PowerPlant, sql:Error?> resultStream = dbClient->query(query);
+
+    check from PowerPlant powerPlant in resultStream
+        do {
+            powerPlants.push(powerPlant);
+        };
+    check resultStream.close();
+    return powerPlants;
+}
+
 // Function to update a power plant in the MySQL database
 public isolated function updatePowerPlant(PowerPlant plant) returns error? | int? {
     // Ensure MySQL is initialized
@@ -254,6 +271,34 @@ public isolated  function shortageAmount() returns json|error {
     return responseData;
 }
 
+// Function to suggest minimum number of private power plants based on shortage amount
+public isolated function suggestPrivatePowerPlants() returns json|error {
+    decimal shortageAmount = check shortageAmount();
+    PowerPlant[] privatePowerPlants = check getPrivatePowerPlants();
+
+    // Sort private power plants by daily production capacity in descending order
+    privatePowerPlants.sort((PowerPlant a, PowerPlant b) => b.daily_production_capacity <=> a.daily_production_capacity);
+
+    decimal accumulatedCapacity = 0;
+    PowerPlant[] selectedPowerPlants = [];
+
+    foreach var plant in privatePowerPlants {
+        if (accumulatedCapacity >= shortageAmount) {
+            break;
+        }
+        accumulatedCapacity += plant.daily_production_capacity;
+        selectedPowerPlants.push(plant);
+    }
+
+    json[] result = [];
+    foreach var plant in selectedPowerPlants {
+        result.push({ "id": plant.id, "name": plant.name });
+    }
+
+    return result;
+}
+
+
 /**
  * ===============================================
  * Service to interact with power plant operations
@@ -303,6 +348,12 @@ service /powerplant on httpListener {
     // Retrieve shortage amount from ml model
     isolated resource function get shortageAmount() returns json|error {
         json response = check shortageAmount();
+        return response;
+    }
+
+    // Suggest minimum number of private power plants based on shortage amount
+    isolated resource function get suggestPrivate() returns json|error {
+        json response = check suggestPrivatePowerPlants();
         return response;
     }
 }
