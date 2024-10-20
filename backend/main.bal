@@ -38,9 +38,10 @@ public type PowerPlant record {
 
 public type PowerPlantStatus record {
     int id?;
-    string name;
-    string status;
     decimal produceCapacity;
+    string status;
+    int plant_id;
+
 };
 
 public type Request record {
@@ -147,7 +148,7 @@ public isolated function deletePowerPlant(int plantId) returns error?|int? {
 public isolated function addPowerPlantStatus(PowerPlantStatus status) returns error?|int? {
     //check initMySQL(); // Ensure MySQL is initialized
 
-    sql:ParameterizedQuery query = `INSERT INTO PowerPlantStatus (name, status, produce_capacity) VALUES (${status.name}, ${status.status}, ${status.produceCapacity})`;
+    sql:ParameterizedQuery query = `INSERT INTO PowerPlantStatus (produce_capacity,status,plant_id) VALUES (${status.produceCapacity}, ${status.status}, ${status.plant_id})`;
     sql:ExecutionResult result = check dbClient->execute(query);
     int|string? lastInsertId = result.lastInsertId;
     if lastInsertId is int {
