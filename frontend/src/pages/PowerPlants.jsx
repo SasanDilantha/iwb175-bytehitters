@@ -101,15 +101,31 @@ const PowerPlants = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {plants.map((plant) => (
                         <div key={plant.id} className="border rounded-lg overflow-hidden shadow-lg">
-                            <img src={plant.image} alt={plant.name} className="w-full h-32 object-cover" />
-                            <div className="p-4">
-                                <h2 className="text-xl font-bold">{plant.name}</h2>
-                                <p><strong>Location:</strong> {plant.location}</p>
-                                <p><strong>Ownership:</strong> {plant.ownership}</p>
-                                <p><strong>Daily Production Capacity:</strong> {plant.dailyProductionCapacity} MW</p>
-                                <p><strong>Email:</strong> {plant.email}</p>
+                        <img src={plant.image} alt={plant.name} className="w-full h-32 object-cover" />
+                        <div className="p-4">
+                            <h2 className="text-xl font-bold">{plant.name}</h2>
+                            <p><strong>Location:</strong> {plant.location}</p>
+                            <p><strong>Ownership:</strong> {plant.ownership}</p>
+                            <p><strong>Daily Production Capacity:</strong> {plant.dailyProductionCapacity} MW</p>
+                            <p><strong>Email:</strong> {plant.email}</p>
+                    
+                            {/* Buttons container */}
+                            <div className="flex justify-between mt-4">
+                                <button
+                                    className="bg-blue-800 text-white px-4 py-2 rounded-md shadow hover:bg-blue-900 transition"
+                                    onClick={() => handleUpdateClick(plant)} // Example function for update
+                                >
+                                    Update
+                                </button>
+                                <button
+                                    className="bg-red-700 text-white px-4 py-2 rounded-md shadow hover:bg-red-800 transition"
+                                    onClick={() => handleDeleteClick(plant.id)} // Example function for delete
+                                >
+                                    Delete
+                                </button>
                             </div>
                         </div>
+                    </div>
                     ))}
                 </div>
                 <Modal
