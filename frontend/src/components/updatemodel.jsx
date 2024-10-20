@@ -1,7 +1,7 @@
-import axios from "axios";
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 const UpdateModal = ({ plant, onClose }) => {
+
   const [status, setStatus] = useState();
   const [capacity, setCapacity] = useState();
   const [powerPlantStatus, setPowerPlantStatus] = useState({
@@ -118,12 +118,10 @@ const UpdateModal = ({ plant, onClose }) => {
               >
                 Cancel
               </button>
+
             </div>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
+        </div>
+    );
 };
 
 export default UpdateModal;

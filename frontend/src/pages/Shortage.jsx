@@ -3,12 +3,13 @@ import axios from "axios";
 import RequestModal from "../components/RequestModal";
 
 const Shortage = () => {
-	const [shortages, setShortages] = useState([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [selectedPlantId, setSelectedPlantId] = useState(null);
-    const [nextShotageDate, setNextShortageDate] = useState(""); // State to hold the next shortage date
+	const [nextShotageDate, setNextShortageDate] = useState(""); // State to hold the next shortage date
+	const [shortageAmount, setShortageAmount] = useState(0.0); // State to hold the shortage amount
+	const [suggestedPowerPlants, setSuggestedPowerPlants] = useState([]);
 
-	useEffect(() => { 
+	useEffect(() => {
 		axios
 			.get("http://localhost:9090/powerplant/shortageDate")
 			.then((response) => {
@@ -27,7 +28,9 @@ const Shortage = () => {
 					"November",
 					"December",
 				];
-				setNextShortageDate(monthNames[date.getMonth() - 1] + " - " + date.getFullYear());
+				setNextShortageDate(
+					monthNames[date.getMonth() - 1] + " - " + date.getFullYear()
+				);
 			})
 			.catch((error) => {
 				console.error(error);
@@ -35,38 +38,57 @@ const Shortage = () => {
 	}, []);
 
 	useEffect(() => {
-		// Simulated data for shortages
-		const dummyData = [
-			{
-				id: 1,
-				name: "Plant A",
-				capacity: "200 MW",
-				description: "Expected power shortage due to maintenance.",
-			},
-			{
-				id: 2,
-				name: "Plant B",
-				capacity: "150 MW",
-				description: "Potential shortage due to increased demand.",
-			},
-			{
-				id: 3,
-				name: "Plant C",
-				capacity: "300 MW",
-				description: "Forecasted shortage due to fuel supply issues.",
-			},
-		];
-		setShortages(dummyData);
+		axios
+			.get("http://localhost:9090/powerplant/shortageAmount")
+			.then((response) => {
+				setShortageAmount(parseFloat(response.data["shortage_amount"]));
+			})
+			.catch((error) => {
+				console.error(error);
+			});
+	}, []);
+
+	useEffect(() => {
+		console.log("Shortage Amount: ", shortageAmount);
+		axios
+			.post(
+				"http://localhost:9090/powerplant/suggestPrivate?shortage_amount=" +
+					shortageAmount
+			)
+			.then((response) => {
+				setSuggestedPowerPlants(response.data);
+				console.log(response.data);
+			})
+			.catch((error) => {
+				console.error(error);
+			});
 	}, []);
 
 	const handleRequest = (id) => {
+		console.log("Requesting Power Plant ID:", id);
 		setSelectedPlantId(id); // Set the selected power plant ID
 		setIsModalOpen(true); // Open the modal
 	};
 
 	const handleSubmit = (requestData) => {
-		console.log("Request Data:", requestData);
-		alert(`Request for Power Plant ID ${requestData.powerPlantId} submitted!`);
+		// power_plant_id, request_capacity, request_date, status
+		let data = {
+			powerPlantId: selectedPlantId,
+			requestCapacity: parseFloat(requestData.requestAmount),
+			requestDate: requestData.date,
+			status: requestData.status,
+		}
+
+		axios
+			.post("http://localhost:9090/powerplant/request", data)
+			.then((response) => {
+				console.log(response.data);
+			})
+			.catch((error) => {
+				console.error(error);
+			});
+
+		alert(`Request for Power Plant ID ${requestData.id} submitted!`);
 	};
 
 	return (
@@ -76,9 +98,9 @@ const Shortage = () => {
 				<div className="flex justify-center mb-8">
 					<div className="bg-white shadow-lg rounded-lg p-6 max-w-lg text-center">
 						<h1 className="text-3xl font-bold text-blue-800 mb-4">
-							Possible Shortage Dates
+							Possible Shortage Date:
 						</h1>
-						<p className="text-xl text-gray-700">{nextShotageDate}</p>
+						<p className="text-xl text-gray-700 font-bold">{nextShotageDate}</p>
 					</div>
 				</div>
 
@@ -93,27 +115,29 @@ const Shortage = () => {
 								{/* Name Column */}
 								<th className="py-3 px-6 text-left">Capacity</th>{" "}
 								{/* Capacity Column */}
-								<th className="py-3 px-6 text-left">Description</th>{" "}
+								<th className="py-3 px-6 text-left">Location</th>{" "}
 								{/* Description Column */}
 								<th className="py-3 px-6 text-left text-center">Request</th>
 							</tr>
 						</thead>
 						<tbody className="text-gray-600 text-sm font-light">
-							{shortages.map((shortage) => (
+							{suggestedPowerPlants.map((private_plant, index) => (
 								<tr
-									key={shortage.id}
+									key={private_plant.id}
 									className="border-b border-gray-200 hover:bg-gray-100"
 								>
-									<td className="py-3 px-6">{shortage.name}</td>{" "}
+									<td className="py-3 px-6">{private_plant.name}</td>{" "}
 									{/* Display Name */}
-									<td className="py-3 px-6">{shortage.capacity}</td>{" "}
+									<td className="py-3 px-6">
+										{private_plant.daily_production_capacity} GWh
+									</td>{" "}
 									{/* Display Capacity */}
-									<td className="py-3 px-6">{shortage.description}</td>{" "}
-									{/* Display Description */}
+									<td className="py-3 px-6">{private_plant.location}</td>{" "}
+									{/* Display Location */}
 									<td className="py-3 px-6 text-center">
 										<button
 											className="bg-blue-600 text-white px-4 py-2 rounded-md shadow hover:bg-blue-800 transition"
-											onClick={() => handleRequest(shortage.id)}
+											onClick={() => handleRequest(private_plant.id)}
 										>
 											Request
 										</button>

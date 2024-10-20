@@ -16,6 +16,7 @@ const RequestModal = ({ isOpen, onClose, powerPlantId, onSubmit }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         onSubmit(requestData);
+        console.log(requestData);
         onClose(); // Close the modal after submission
     };
 
@@ -31,7 +32,7 @@ const RequestModal = ({ isOpen, onClose, powerPlantId, onSubmit }) => {
                         <input
                             type="text"
                             name="powerPlantId"
-                            value={requestData.powerPlantId}
+                            value={powerPlantId}
                             onChange={handleChange}
                             className="border border-gray-300 p-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             readOnly
