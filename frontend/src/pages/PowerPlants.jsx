@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Modal from "../components/Model"; // Import the Modal component
-
+import powerPlant from "../assets/images/power-plant.jpg"
 const PowerPlants = () => {
 	// useState to hold power plant data
 	const [powerPlants, setPowerPlants] = useState([]);
@@ -87,7 +87,7 @@ const PowerPlants = () => {
 							className="border rounded-lg overflow-hidden shadow-lg"
 						>
 							<img
-								src={plant.image}
+								src={plant.image || powerPlant}
 								alt={plant.name}
 								className="w-full h-32 object-cover"
 							/>
