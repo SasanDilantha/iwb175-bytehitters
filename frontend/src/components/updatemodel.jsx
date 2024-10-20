@@ -20,29 +20,27 @@ const UpdateModal = ({ plant, onClose }) => {
   // 		setNewPlant({ ...newPlant, [name]: value });
   // 	}
   // };
-  const submitForm = (e)=> {
+  const submitForm = (e) => {
     e.preventDefault();
     // console.log(formData, "Foram data");
 
-    	axios
-  		.post("http://localhost:9090/powerplant/status", formData)
-  		.then((response) => {
-  			console.log(response.data);
-  		})
-  		.catch((error) => {
-  			console.log(error);
-  		});
-  	
+    axios
+      .post("http://localhost:9090/powerplant/status", formData)
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
 
     onClose();
-  }
+  };
 
   const formData = {
     status: status,
-    produceCapacity: capacity,
-    plant_id: plant.id,
+    produceCapacity: parseFloat(capacity),
+    plant_id: parseInt(plant.id),
   };
-
 
   // const handleSubmit = (e) => {
   //   e.preventDefault();
