@@ -23,6 +23,8 @@
 <h2>Steps to run the project</h2>
 <ol>
   <li>Clone the project from Github and navigate to folders frontend, backend and api via four seperate terminals.</li>
+  <li>Visit phpmyadmin at Port 8081 and log into MYSQL server using Username: root, Password: testUser</li>
+  <li>Create a database named "bal" and load the SQL dump file in resources folder</li>
   <li>Navigate to "frontend" folder: cd frontend</li>
     <ol>
       <li>"npm install" - To install Node dependencies</li>
