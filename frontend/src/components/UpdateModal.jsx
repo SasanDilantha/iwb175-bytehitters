@@ -2,30 +2,15 @@ import axios from "axios";
 import React, { useState } from "react";
 
 const UpdateModal = ({ plant, onClose }) => {
+  console.log(plant);
   const [status, setStatus] = useState();
   const [capacity, setCapacity] = useState();
-  const [powerPlantStatus, setPowerPlantStatus] = useState({
-    status: "",
-    produce_capacity: "",
-    plant_id: "",
-  });
 
-  // const handleChange = (e) => {
-  // 	const { name, value } = e.target;
-
-  // 	if (name === "produce_capacity") {
-  // 		const decimalValue = parseFloat(value);
-  // 		setNewPlant({ ...newPlant, [name]: decimalValue });
-  // 	} else {
-  // 		setNewPlant({ ...newPlant, [name]: value });
-  // 	}
-  // };
   const submitForm = (e) => {
     e.preventDefault();
-    // console.log(formData, "Foram data"); 
 
     axios
-      .post("http://localhost:9090/powerplant/status", formData)
+      .put("http://localhost:9090/powerplant/updateStatus", formData)
       .then((response) => {
         console.log(response.data); 
       })
@@ -39,18 +24,8 @@ const UpdateModal = ({ plant, onClose }) => {
   const formData = {
     status: status,
     produceCapacity: parseFloat(capacity),
-    plant_id: parseInt(plant.id),
+    plant_id: parseInt(plant.plant_id),
   };
-
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   // Logic to update the power plant details
-  //   console.log(
-  //     `Updated: ${plant.name}, Description: ${description}, Capacity: ${capacity}`
-  //   );
-  //   alert(`Updated details for ${plant.name}`);
-  //   onClose(); // Close the modal after submission
-  // };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-70">
@@ -61,37 +36,21 @@ const UpdateModal = ({ plant, onClose }) => {
         <form>
           <div className="space-y-4">
             <div className="form-group">
+              <hidden name="plant_id" value={plant.plant_id} />
               <select
                 className="mt-1 p-2 w-full border border-gray-300 rounded-lg focus:ring focus:ring-blue-500 form-select"
                 id="status"
                 name="status"
                 value={status}
+                defaultValue={plant.status}
                 onChange={(e) => setStatus(e.target.value)}
                 required
               >
-                <option value="" hidden>
-                  Select Status
-                </option>
                 <option value="act">Active</option>
                 <option value="pact">Partially Active</option>
                 <option value="dct">Deactive</option>
               </select>
             </div>
-            {/* <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Status
-              </label>
-              <select
-                name="ownership"
-                className="mt-1 p-2 w-full border border-gray-300 rounded-lg focus:ring focus:ring-blue-500"
-                required
-              >
-                <option value="">Select</option>
-                <option value="pub">Active</option>
-                <option value="pvt">Partially Active</option>
-                <option value="pvt">Deactive</option>
-              </select>
-            </div> */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Current_Capacity

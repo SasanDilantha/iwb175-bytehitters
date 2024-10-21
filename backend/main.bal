@@ -37,7 +37,7 @@ public type PowerPlant record {
 };
 
 public type PowerPlantStatus record {
-    int id?;
+    // int id?;
     string status;
     decimal produceCapacity;
     int plant_id;
@@ -50,18 +50,6 @@ public type Request record {
     string requestDate;
     string status;
 };
-
-type SampleErrorData record {|
-    int code;
-    string reason;
-|};
-
-type SampleError error<SampleErrorData>;
-
-isolated function getSampleError() returns SampleError {
-    return error("Transaction Failure", error("Database Error"), code = 20,
-                            reason = "deadlock condition");
-}
 
 // Function to add a power plant to the MySQL database 
 public isolated function addPowerPlant(PowerPlant plant) returns error?|int? {
@@ -158,13 +146,12 @@ public isolated function addPowerPlantStatus(PowerPlantStatus status) returns er
     //log:printInfo("Power plant status added successfully.");
 }
 
-// Function to retrieve all power plant statuses from MySQL
-public function getAllPowerPlantStatuses() returns error|PowerPlantStatus[] {
+public isolated function getAllPowerPlantStatuses() returns error|PowerPlantStatus[] {
     //check initMySQL(); // Ensure MySQL is initialized
 
     PowerPlantStatus[] powerPlantStatuses = [];
 
-    sql:ParameterizedQuery query = `SELECT * FROM PowerPlantStatus`;
+    sql:ParameterizedQuery query = `SELECT plant_id, name, produce_capacity, location, status FROM PowerPlant, PowerPlantStatus WHERE PowerPlant.id = PowerPlantStatus.plant_id`;
     stream<PowerPlantStatus, sql:Error?> resultStream = dbClient->query(query);
 
     check from PowerPlantStatus powerPlantStatus in resultStream
@@ -179,12 +166,12 @@ public function getAllPowerPlantStatuses() returns error|PowerPlantStatus[] {
 public isolated function updatePowerPlantStatus(PowerPlantStatus status) returns error?|int? {
     //check initMySQL(); // Ensure MySQL is initialized
 
-    sql:ParameterizedQuery query = `UPDATE PowerPlantStatus SET status = ${status.status}, produce_capacity = ${status.produceCapacity} WHERE id = ${status.id}`;
+    sql:ParameterizedQuery query = `UPDATE PowerPlantStatus SET status = ${status.status}, produce_capacity = ${status.produceCapacity} WHERE plant_id = ${status.plant_id}`;
     sql:ExecutionResult result = check dbClient->execute(query);
 
-    int|string? lastInsertId = result.lastInsertId;
-    if lastInsertId is int {
-        return lastInsertId;
+    int? affectedRowCount = result.affectedRowCount;
+    if affectedRowCount is int {
+        return affectedRowCount;
     } else {
         return error("Unable to obtain last insert ID");
     }
@@ -211,8 +198,7 @@ public isolated function addPowerRequest(Request request) returns error?|int? {
 // Function to retrieve all power requests from MySQL
 public isolated function getAllPowerRequests() returns error|Request[] {
     //check initMySQL(); // Ensure MySQL is initialized
-
-    sql:ParameterizedQuery query = `SELECT * FROM Request`;
+    sql:ParameterizedQuery query = `SELECT name, power_plant_id, request_capacity, request_date, status FROM Request, PowerPlant WHERE Request.power_plant_id = PowerPlant.id`;
     stream<Request, sql:Error?> resultStream = dbClient->query(query);
 
     Request[] requests = [];
@@ -309,7 +295,7 @@ public isolated function suggestPrivatePowerPlants(decimal shortage_amount) retu
 @http:ServiceConfig {
     cors: {
         allowOrigins: ["http://localhost:5173"],
-        allowMethods: ["GET", "POST", "DELETE"]
+        allowMethods: ["GET", "POST", "DELETE", "PUT"]
     }
 }
 
@@ -351,6 +337,12 @@ service /powerplant on httpListener {
     isolated resource function put updateStatus(PowerPlantStatus status) returns json|error {
         int? statusId = check updatePowerPlantStatus(status);
         return { "statusId": statusId };
+    }
+
+    // Get power plants with a breakdon (status)
+    isolated resource function get under_repair() returns PowerPlantStatus[]|error {
+        PowerPlantStatus[] powerPlantStatuses = check getAllPowerPlantStatuses();
+        return powerPlantStatuses;
     }
 
     // Add a new power request

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Modal from "../components/Model"; // Import the Modal component
+import Modal from "../components/NewPowerPlant"; // Import the Modal component
 import powerPlant from "../assets/images/power-plant.jpg"
 const PowerPlants = () => {
 	// useState to hold power plant data
@@ -11,7 +11,7 @@ const PowerPlants = () => {
 		location: "",
 		ownership: "government",
 		daily_production_capacity: "",
-		email: "",
+		mail: "",
 	});
 
 	useEffect(() => {
@@ -57,7 +57,7 @@ const PowerPlants = () => {
 			location: "",
 			ownership: "",
 			daily_production_capacity: "",
-			email: "",
+			mail: "",
 		});
 	};
 
@@ -95,14 +95,14 @@ const PowerPlants = () => {
 									<strong>Location:</strong> {plant.location}
 								</p>
 								<p>
-									<strong>Ownership:</strong> {plant.ownership}
+									<strong>Ownership:</strong> {plant.ownership == "pub" ? "Public" : "Private"}
 								</p>
 								<p>
 									<strong>Daily Production Capacity:</strong>{" "}
 									{plant.daily_production_capacity} MW
 								</p>
 								<p>
-									<strong>Email:</strong> {plant.email}
+									<strong>Email:</strong> {plant.mail}
 								</p>
 							</div>
 						</div>
