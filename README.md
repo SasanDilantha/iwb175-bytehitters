@@ -14,8 +14,8 @@
 
 <h2>Dependencies</h2>
 <ol>
-  <li>Node</li>
-  <li>Ballerina</li>
+  <li>Node: Version v20.10.0</li>
+  <li>Ballerina: Version 2201.10.0 (Swan Lake Update 10)</li>
   <li>Python: Version 3.11.5</li>
   <li>Docker</li>
 </ol>
