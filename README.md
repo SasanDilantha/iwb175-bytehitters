@@ -12,6 +12,14 @@
   <li>ml - ML Models, operational datasets etc.</li>
 </ol>
 
+<h2>Dependencies</h2>
+<ol>
+  <li>Node</li>
+  <li>Ballerina</li>
+  <li>Python: Version 3.11.5</li>
+  <li>Docker</li>
+</ol>
+
 <h2>Steps to run the project</h2>
 <ol>
   <li>Clone the project from Github and navigate to folders frontend, backend and api via four seperate terminals.</li>
