@@ -12,9 +12,19 @@
   <li>ml - ML Models, operational datasets etc.</li>
 </ol>
 
+<h2>Dependencies</h2>
+<ol>
+  <li>Node: Version v20.10.0</li>
+  <li>Ballerina: Version 2201.10.0 (Swan Lake Update 10)</li>
+  <li>Python: Version 3.11.5</li>
+  <li>Docker</li>
+</ol>
+
 <h2>Steps to run the project</h2>
 <ol>
   <li>Clone the project from Github and navigate to folders frontend, backend and api via four seperate terminals.</li>
+  <li>Visit phpmyadmin at Port 8081 and log into MYSQL server using Username: root, Password: testUser</li>
+  <li>Create a database named "bal" and load the SQL dump file in resources folder</li>
   <li>Navigate to "frontend" folder: cd frontend</li>
     <ol>
       <li>"npm install" - To install Node dependencies</li>

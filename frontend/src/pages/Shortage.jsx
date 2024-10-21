@@ -8,11 +8,13 @@ const Shortage = () => {
 	const [nextShotageDate, setNextShortageDate] = useState(""); // State to hold the next shortage date
 	const [shortageAmount, setShortageAmount] = useState(0.0); // State to hold the shortage amount
 	const [suggestedPowerPlants, setSuggestedPowerPlants] = useState([]);
+	const [requests, setRequests] = useState([]);
 
 	useEffect(() => {
 		getShortageDate();
 		getShortageAmount();
 		getSuggestedPowerPlants();
+		getRequests();
 	}, [shortageAmount]);
 
 	function getShortageDate() {
@@ -68,6 +70,18 @@ const Shortage = () => {
 			});
 	}
 
+	function getRequests() {
+		axios
+			.get("http://localhost:9090/powerplant/requests")
+			.then((response) => {
+				setRequests(response.data);
+				console.log(response.data);
+			})
+			.catch((error) => {
+				console.error(error);
+			});
+	}
+
 	const handleRequest = (id) => {
 		console.log("Requesting Power Plant ID:", id);
 		setSelectedPlantId(id); // Set the selected power plant ID
@@ -81,7 +95,7 @@ const Shortage = () => {
 			requestCapacity: parseFloat(requestData.requestAmount),
 			requestDate: requestData.date,
 			status: requestData.status,
-		}
+		};
 
 		axios
 			.post("http://localhost:9090/powerplant/request", data)
@@ -115,11 +129,11 @@ const Shortage = () => {
 					<table className="min-w-full bg-white rounded-lg shadow-md">
 						<thead>
 							<tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-								<th className="py-3 px-6 text-left">Name</th>{" "}
+								<th className="py-3 px-6 text-left">Name</th>
 								{/* Name Column */}
-								<th className="py-3 px-6 text-left">Capacity</th>{" "}
+								<th className="py-3 px-6 text-left">Capacity</th>
 								{/* Capacity Column */}
-								<th className="py-3 px-6 text-left">Location</th>{" "}
+								<th className="py-3 px-6 text-left">Location</th>
 								{/* Description Column */}
 								<th className="py-3 px-6 text-left text-center">Request</th>
 							</tr>
@@ -130,13 +144,13 @@ const Shortage = () => {
 									key={private_plant.id}
 									className="border-b border-gray-200 hover:bg-gray-100"
 								>
-									<td className="py-3 px-6">{private_plant.name}</td>{" "}
+									<td className="py-3 px-6">{private_plant.name}</td>
 									{/* Display Name */}
 									<td className="py-3 px-6">
 										{private_plant.daily_production_capacity} GWh
-									</td>{" "}
+									</td>
 									{/* Display Capacity */}
-									<td className="py-3 px-6">{private_plant.location}</td>{" "}
+									<td className="py-3 px-6">{private_plant.location}</td>
 									{/* Display Location */}
 									<td className="py-3 px-6 text-center">
 										<button
@@ -145,6 +159,52 @@ const Shortage = () => {
 										>
 											Request
 										</button>
+									</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
+
+				{/* Request Table */}
+				<div>
+					<h2 className="text-xl font-semibold mb-4 mt-10">
+						Submitted Requests
+					</h2>
+					<table className="min-w-full bg-white rounded-lg shadow-md pt-40">
+						<thead>
+							<tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+								<th className="py-3 px-6 text-left">Plant Name</th>
+								{/* Name Column */}
+								<th className="py-3 px-6 text-left">Request Capacity</th>
+								{/* Capacity Column */}
+								<th className="py-3 px-6 text-left">Request Date</th>
+								{/* Description Column */}
+								<th className="py-3 px-6 text-left text-center">Status</th>
+							</tr>
+						</thead>
+						<tbody className="text-gray-600 text-sm font-light">
+							{requests.map((request, index) => (
+								<tr
+									key={request.power_plant_id}
+									className="border-b border-gray-200 hover:bg-gray-100"
+								>
+									<td className="py-3 px-6">{request.name}</td>
+
+									<td className="py-3 px-6">{request.request_capacity} GWh</td>
+
+									<td className="py-3 px-6">{request.request_date}</td>
+
+									<td className="py-3 px-6 text-center">
+										<span
+											className={`px-2 py-1 rounded ${
+												request.status === "Approved"
+													? "bg-green-200 text-green-800"
+													: "bg-red-200 text-red-800"
+											}`}
+										>
+											{request.status}
+										</span>
 									</td>
 								</tr>
 							))}
