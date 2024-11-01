@@ -33,9 +33,9 @@ public type PowerPlantStatus record {
 
 public type Request record {
     int id?;
-    int powerPlantId;
-    decimal requestCapacity;
-    string requestDate;
+    int power_plant_id;
+    decimal request_capacity;
+    string request_date;
     string status;
 };
 
@@ -332,8 +332,14 @@ service /powerplant on httpListener {
     }
 
     // Add a new power request
-    isolated resource function post request(Request request) returns json|error {
+    isolated resource function post add_request(Request request) returns json|error {
         int? requestId = check addPowerRequest(request);
+        return { "requestId": requestId };
+    }
+
+    // Update a new request
+    isolated resource function put update_request(Request request) returns json|error {
+        int? requestId = check updatePowerRequest(request);
         return { "requestId": requestId };
     }
 
