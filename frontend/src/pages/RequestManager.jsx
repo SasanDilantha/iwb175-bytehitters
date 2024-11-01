@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import UpdateModal from "../components/UpdateModal"; // Import the UpdateModal component
+import DisruptionModal from "../components/DisruptionModal"; // Import the UpdateModal component
 import axios from "axios";
 
 const RequestManager = () => {
@@ -100,7 +100,7 @@ const RequestManager = () => {
 
 			{/* Update Modal */}
 			{isModalOpen && (
-				<UpdateModal plant={selectedPlant} onClose={handleModalClose} />
+				<DisruptionModal plant={selectedPlant} onClose={handleModalClose} />
 			)}
 		</div>
 	);

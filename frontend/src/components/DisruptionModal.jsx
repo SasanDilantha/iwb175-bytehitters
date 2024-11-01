@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 
-const UpdateModal = ({ plant, onClose }) => {
+const DisruptionModal = ({ plant, onClose }) => {
   console.log(plant);
   const [status, setStatus] = useState();
   const [capacity, setCapacity] = useState();
@@ -85,4 +85,4 @@ const UpdateModal = ({ plant, onClose }) => {
   );
 };
 
-export default UpdateModal;
+export default DisruptionModal;
