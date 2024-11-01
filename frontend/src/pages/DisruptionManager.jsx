@@ -1,11 +1,19 @@
 import React, { useEffect, useState } from "react";
-import DisruptionModal from "../components/DisruptionModal";
 import axios from "axios";
+import NewDisruptionModal from "../components/NewDisruptionModal";
+import UpdateDisruptionModal from "../components/UpdateDisruptionModal";
 
 const DisruptionManager = () => {
 	const [powerPlants, setPowerPlants] = useState([]);
+	const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+	const [isNewModalOpen, setIsNewModalOpen] = useState(false);
+	const [selectedPlant, setSelectedPlant] = useState(null);
 
 	useEffect(() => {
+		fetchPowerPlants();
+	}, []);
+
+	const fetchPowerPlants = () => {
 		axios
 			.get("http://localhost:9090/powerplant/under_repair")
 			.then((response) => {
@@ -15,28 +23,33 @@ const DisruptionManager = () => {
 			.catch((error) => {
 				console.log(error);
 			});
-	}, []);
-
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [selectedPlant, setSelectedPlant] = useState(null);
+	};
 
 	const handleUpdateClick = (plant) => {
 		setSelectedPlant(plant);
-		setIsModalOpen(true);
+		setIsUpdateModalOpen(true);
 	};
 
-	const handleModalClose = () => {
-		setIsModalOpen(false);
+	const handleNewDisruptionAdded = (newDisruption) => {
+		setPowerPlants((prevPlants) => [...prevPlants, newDisruption]);
 	};
 
 	return (
 		<div className="flex flex-col min-h-screen">
 			<main className="flex-grow p-6 bg-gray-100">
-				{/* Card styled container for heading */}
 				<div className="bg-white shadow-lg rounded-lg p-6 mb-8 text-center mx-auto max-w-md">
 					<h1 className="text-3xl font-bold text-blue-800">
-						Distruption Manager
+						Disruption Manager
 					</h1>
+				</div>
+
+				<div>
+					<button
+						onClick={() => setIsNewModalOpen(true)}
+						className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition mb-4"
+					>
+						Add New
+					</button>
 				</div>
 
 				<div className="overflow-x-auto">
@@ -96,8 +109,16 @@ const DisruptionManager = () => {
 			</main>
 
 			{/* Update Modal */}
-			{isModalOpen && (
-				<DisruptionModal plant={selectedPlant} onClose={handleModalClose} />
+			{isUpdateModalOpen && (
+				<UpdateDisruptionModal plant={selectedPlant} onClose={() => setIsUpdateModalOpen(false)} />
+			)}
+			{/* New Disruption Modal */}
+			{isNewModalOpen && (
+				<NewDisruptionModal
+					isOpen={isNewModalOpen}
+					onClose={() => setIsNewModalOpen(false)}
+					onDisruptionAdded={handleNewDisruptionAdded}
+				/>
 			)}
 		</div>
 	);

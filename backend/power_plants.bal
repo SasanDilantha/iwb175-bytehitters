@@ -33,7 +33,7 @@ public isolated function getAllPowerPlants() returns error|PowerPlant[] {
 public isolated function getPrivatePowerPlants() returns error|PowerPlant[] {
     PowerPlant[] powerPlants = [];
 
-    sql:ParameterizedQuery query = `SELECT * FROM PowerPlant WHERE ownership = 'pvt'`;
+    sql:ParameterizedQuery query = `SELECT * FROM PowerPlant WHERE ownership = 'pvt' ORDER BY daily_production_capacity DESC`;
     stream<PowerPlant, sql:Error?> resultStream = dbClient->query(query);
 
     check from PowerPlant powerPlant in resultStream
@@ -93,4 +93,19 @@ public isolated function suggestPrivatePowerPlants(decimal shortage_amount) retu
     }
 
     return result;
+}
+
+// Function to get unbroken power plants
+public isolated function getActivePowerPlants() returns error|PowerPlant[] {
+    PowerPlant[] powerPlants = [];
+
+    sql:ParameterizedQuery query = `SELECT * FROM PowerPlant WHERE ownership = 'pub' AND id NOT IN (SELECT plant_id FROM PowerPlantStatus)`;
+    stream<PowerPlant, sql:Error?> resultStream = dbClient->query(query);
+
+    check from PowerPlant powerPlant in resultStream
+        do {
+            powerPlants.push(powerPlant);
+        };
+    check resultStream.close();
+    return powerPlants;
 }
