@@ -93,7 +93,6 @@ const Shortage = () => {
 	};
 
 	const handleSubmit = (requestData) => {
-		// power_plant_id, request_capacity, request_date, status
 		let data = {
 			power_plant_id: selectedPlantId,
 			request_capacity: parseFloat(requestData.requestAmount),
@@ -104,6 +103,7 @@ const Shortage = () => {
 		axios
 			.post("http://localhost:9090/powerplant/add_request/", data)
 			.then((response) => {
+				getRequests();
 				console.log(response.data);
 			})
 			.catch((error) => {
