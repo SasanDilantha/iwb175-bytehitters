@@ -45,7 +45,7 @@ const UpdatePowerPlantModal = ({
 									className="mt-1 p-2 w-full border border-gray-300 rounded-lg focus:ring focus:ring-blue-500"
 								>
 									<option value="pub">Government</option>
-									<option value="private">Private</option>
+									<option value="pvt">Private</option>
 								</select>
 							</div>
 							<div>

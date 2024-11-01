@@ -84,6 +84,7 @@ public isolated function suggestPrivatePowerPlants(decimal shortage_amount) retu
         }
         accumulatedCapacity += plant.daily_production_capacity;
         selectedPowerPlants.push(plant);
+        // io:println(accumulatedCapacity);
     }
 
     json[] result = [];
