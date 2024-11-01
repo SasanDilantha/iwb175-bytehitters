@@ -172,7 +172,7 @@ const PowerPlants = () => {
 								</p>
 								<p>
 									<strong>Daily Production Capacity:</strong>{" "}
-									{plant.daily_production_capacity} MW
+									{plant.daily_production_capacity} GW
 								</p>
 								<p>
 									<strong>Email:</strong> {plant.mail}
