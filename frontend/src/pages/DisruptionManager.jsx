@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import DisruptionModal from "../components/DisruptionModal"; // Import the UpdateModal component
+import DisruptionModal from "../components/DisruptionModal";
 import axios from "axios";
 
-const RequestManager = () => {
+const DisruptionManager = () => {
 	const [powerPlants, setPowerPlants] = useState([]);
 
 	useEffect(() => {
@@ -27,7 +27,6 @@ const RequestManager = () => {
 
 	const handleModalClose = () => {
 		setIsModalOpen(false);
-		// setSelectedPlant(null);
 	};
 
 	return (
@@ -39,8 +38,6 @@ const RequestManager = () => {
 						Distruption Manager
 					</h1>
 				</div>
-
-        
 
 				<div className="overflow-x-auto">
 					<table className="min-w-full bg-white shadow-lg rounded-lg overflow-hidden">
@@ -106,4 +103,4 @@ const RequestManager = () => {
 	);
 };
 
-export default RequestManager;
+export default DisruptionManager;

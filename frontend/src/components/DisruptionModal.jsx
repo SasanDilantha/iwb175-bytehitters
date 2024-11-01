@@ -22,7 +22,7 @@ const DisruptionModal = ({ plant, onClose }) => {
   };
 
   const formData = {
-    status: status,
+    status: status || plant.status,
     produceCapacity: parseFloat(capacity),
     plant_id: parseInt(plant.plant_id),
   };

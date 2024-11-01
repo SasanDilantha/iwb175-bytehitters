@@ -4,7 +4,7 @@ import Layout from "./pages/Layout";
 import WorldWindGlobe from "./pages/WorldWindGlobe";
 import PowerPlants from "./pages/PowerPlants";
 import Shortage from "./pages/Shortage";
-import RequestManager from "./pages/RequestManager";
+import DisruptionManager from "./pages/DisruptionManager";
 
 const App = () => {
 	return (
@@ -15,7 +15,7 @@ const App = () => {
 						<Route path="/" element={<WorldWindGlobe />} />
 						<Route path="/shortage" element={<Shortage />} />
 						<Route path="/power-plants" element={<PowerPlants />} />
-						<Route path="/request-manager" element={<RequestManager />} />
+						<Route path="/disruption-manager" element={<DisruptionManager />} />
 					</Routes>
 				</Layout>
 			</Router>
