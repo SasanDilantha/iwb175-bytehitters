@@ -143,9 +143,15 @@ const Shortage = () => {
 				<div className="flex justify-center mb-8">
 					<div className="bg-white shadow-lg rounded-lg p-6 max-w-lg text-center">
 						<h1 className="text-3xl font-bold text-blue-800 mb-4">
-							Possible Shortage Date:
+							Possible Shortage Date
 						</h1>
 						<p className="text-xl text-gray-700 font-bold">{nextShotageDate}</p>
+					</div>
+					<div className="bg-white shadow-lg rounded-lg p-6 max-w-lg text-center">
+						<h1 className="text-3xl font-bold text-blue-800 mb-4">
+							Possible Shortage Amount
+						</h1>
+						<p className="text-xl text-gray-700 font-bold">{shortageAmount} GWh</p>
 					</div>
 				</div>
 
