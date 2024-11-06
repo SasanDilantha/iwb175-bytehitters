@@ -43,7 +43,7 @@ const Navbar = () => {
             Shortage Prediction
           </a>
           <a
-            href="/request-manager"
+            href="/disruption-manager"
             className="text-white px-4 py-2 rounded-full border border-white hover:bg-gray-300 hover:text-black transition duration-300 ease-in-out"
             aria-label="Disruption Manager"
           >
